@@ -2,16 +2,21 @@ const express = require("express");
 const mongoose = require("mongoose");
 const allRoutes = require("./routes/allRouters");
 const addUserRout = require("./routes/addUser");
-const port = process.env.PORT || 3000;
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
+
+const port = process.env.PORT || process.env.LOCAL_PORT;
 
 const methodOverride = require("method-override");
 const app = express();
-// const port = 3000;
+// const port = process.env.LOCAL_PORT;
 
 app.use(methodOverride("_method"));
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
+app.use(cookieParser());
+app.use(express.json());
 
 //Auto REfresh
 const path = require("path");
@@ -29,9 +34,7 @@ liveReloadServer.server.once("connection", () => {
 });
 
 mongoose
-  .connect(
-    "mongodb+srv://storeg-system:L8EMdrOVFJSASFem@cluster2.6xh2xh1.mongodb.net/all-data"
-  )
+  .connect(process.env.MONGODB_URL)
   .then(() => {
     app.listen(port, () => {
       console.log(`http://localhost:${port}`);

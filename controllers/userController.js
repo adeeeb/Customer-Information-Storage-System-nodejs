@@ -8,7 +8,7 @@ const addUserRoute = (req, res) => {
 const addUserDataToDb = (req, res) => {
   User.create(req.body)
     .then(() => {
-      res.redirect("/");
+      res.redirect("/home");
     })
     .catch((err) => {
       console.log(`error: ${err}`);
@@ -62,7 +62,7 @@ const searchData = (req, res) => {
 const deleteSpecificData = (req, res) => {
   User.findByIdAndDelete(req.params.id)
     .then(() => {
-      res.redirect("/");
+      res.redirect("/home");
     })
     .catch((err) => {
       console.log(err);
@@ -72,12 +72,13 @@ const deleteSpecificData = (req, res) => {
 const updateSpecificData = (req, res) => {
   User.findByIdAndUpdate(req.params.id, req.body)
     .then(() => {
-      res.redirect("/");
+      res.redirect("/home");
     })
     .catch((err) => {
       console.log(err);
     });
 };
+
 module.exports = {
   addUserRoute,
   addUserDataToDb,
