@@ -3,11 +3,29 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 const AuthController = require("../controllers/authController");
 const middlewareJwt = require("../middleware/middleware");
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+require("dotenv").config();
+
 const { check } = require("express-validator");
+const upload = multer({ storage: multer.diskStorage({}) });
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
+//level 3
+router.post(
+  "/update-profile",
+  upload.single("avatar"),
+  AuthController.post_profileImage
+);
 
 //Auth Routes
 
 router.get("*", middlewareJwt.checkIfUser);
+router.post("*", middlewareJwt.checkIfUser);
 
 router.get("/signout", AuthController.signOut);
 

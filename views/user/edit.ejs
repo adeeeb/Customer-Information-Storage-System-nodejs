@@ -6,7 +6,7 @@
       rel="stylesheet"
       href="../bootstrap-icons-1.10.5/font/bootstrap-icons.min.css"
     />
-    <link rel="shortcut icon" href="../img/ali.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="<%= user.profileImage ? user.profileImage : "../img/avatar.png" %>" type="image/x-icon" />
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -56,7 +56,7 @@
             <label for="inputfirstName4" class="form-label">First Name:</label>
             <input
             name="firstName"
-              placeholder="Ali..."
+              placeholder="<%= user.username %>"
               value="<%= item.firstName %>"
               type="text"
               class="form-control"
@@ -79,7 +79,7 @@
             <label for="inputemail4" class="form-label">Email:</label>
             <input
             name="email"
-              placeholder="ali@gmail.com"
+              placeholder="<%= user.email %>"
               value="<%= item.email %>"
               type="email"
               class="form-control"
@@ -90,7 +90,7 @@
             <label for="inputtele4" class="form-label">Telephone:</label>
             <input
             name="phoneNumber"
-              placeholder="011987899"
+              placeholder="09316237887"
               value="<%= item.phoneNumber %>"
               type="number"
               class="form-control"

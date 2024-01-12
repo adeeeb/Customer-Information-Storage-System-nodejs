@@ -9,6 +9,20 @@ const authUserSchema = new Schema(
     username: String,
     email: String,
     password: String,
+    profileImage: String,
+    customerInfo: [
+      {
+        firstName: String,
+        lastName: String,
+        email: String,
+        phoneNumber: String,
+        age: Number,
+        country: String,
+        gender: String,
+        createdAt: Date,
+        updatedAt: { type: Date, default: Date.now },
+      },
+    ],
   },
   { timestamps: true }
 );

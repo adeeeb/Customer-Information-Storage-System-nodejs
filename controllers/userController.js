@@ -1,12 +1,31 @@
 const moment = require("moment");
-const User = require("../models/customerSchema");
+const AuthUser = require("../models/authUser");
+const jwt = require("jsonwebtoken");
 
 const addUserRoute = (req, res) => {
   res.render("user/add");
 };
-
+// add custemor for dashboard
 const addUserDataToDb = (req, res) => {
-  User.create(req.body)
+  var decoded = jwt.verify(req.cookies.jwt, process.env.SECRET_KEY_JWT);
+
+  AuthUser.updateOne(
+    { _id: decoded.id },
+    {
+      $push: {
+        customerInfo: {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          email: req.body.email,
+          phoneNumber: req.body.phoneNumber,
+          age: req.body.age,
+          country: req.body.country,
+          gender: req.body.gender,
+          createdAt: new Date(),
+        },
+      },
+    }
+  )
     .then(() => {
       res.redirect("/home");
     })
@@ -16,9 +35,10 @@ const addUserDataToDb = (req, res) => {
 };
 
 const getAllData = (req, res) => {
-  User.find()
+  var decoded = jwt.verify(req.cookies.jwt, process.env.SECRET_KEY_JWT);
+  AuthUser.findOne({ _id: decoded.id })
     .then((result) => {
-      res.render("index", { arr: result, moment });
+      res.render("index", { arr: result.customerInfo, moment });
     })
     .catch((err) => {
       console.log(err);
@@ -26,9 +46,13 @@ const getAllData = (req, res) => {
 };
 
 const editSpecificData = (req, res) => {
-  User.findById(req.params.id)
+  AuthUser.findOne({ "customerInfo._id": req.params.id })
     .then((result) => {
-      res.render("user/edit", { item: result, moment });
+      const clickedObject = result.customerInfo.find((item) => {
+        return item._id == req.params.id;
+      });
+
+      res.render("user/edit", { item: clickedObject, moment: moment });
     })
     .catch((err) => {
       console.log(err);
@@ -36,9 +60,13 @@ const editSpecificData = (req, res) => {
 };
 
 const viewSpecificData = (req, res) => {
-  User.findById(req.params.id)
+  AuthUser.findOne({ "customerInfo._id": req.params.id })
     .then((result) => {
-      res.render("user/view", { obj: result, moment });
+      const clickedObject = result.customerInfo.find((item) => {
+        return item._id == req.params.id;
+      });
+
+      res.render("user/view", { obj: clickedObject, moment });
     })
     .catch((err) => {
       console.log(err);
@@ -47,12 +75,15 @@ const viewSpecificData = (req, res) => {
 
 //Search
 const searchData = (req, res) => {
+  var decoded = jwt.verify(req.cookies.jwt, process.env.SECRET_KEY_JWT);
   const keyword = req.body.keyword.trim();
-  User.find({
-    $or: [{ firstName: keyword }, { lastName: keyword }],
-  })
+  AuthUser.findOne({ _id: decoded.id })
     .then((result) => {
-      res.render("user/search", { arr: result, moment });
+      const searchCustomers = result.customerInfo.filter((item) => {
+        return item.firstName == keyword || item.lastName == keyword;
+      });
+
+      res.render("user/search", { arr: searchCustomers, moment: moment });
     })
     .catch((err) => {
       console.log(err);
@@ -60,7 +91,10 @@ const searchData = (req, res) => {
 };
 
 const deleteSpecificData = (req, res) => {
-  User.findByIdAndDelete(req.params.id)
+  AuthUser.updateOne(
+    { "customerInfo._id": req.params.id },
+    { $pull: { customerInfo: { _id: req.params.id } } }
+  )
     .then(() => {
       res.redirect("/home");
     })
@@ -70,7 +104,19 @@ const deleteSpecificData = (req, res) => {
 };
 
 const updateSpecificData = (req, res) => {
-  User.findByIdAndUpdate(req.params.id, req.body)
+  AuthUser.updateOne(
+    { "customerInfo._id": req.params.id },
+    {
+      "customerInfo.$.fireName": req.body.firstName,
+      "customerInfo.$.lastName": req.body.lastName,
+      "customerInfo.$.email": req.body.email,
+      "customerInfo.$.phoneNumber": req.body.phoneNumber,
+      "customerInfo.$.age": req.body.age,
+      "customerInfo.$.country": req.body.country,
+      "customerInfo.$.gender": req.body.gender,
+      "customerInfo.$.updatedAt": new Date(),
+    }
+  )
     .then(() => {
       res.redirect("/home");
     })

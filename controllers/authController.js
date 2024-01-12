@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
 
+const cloudinary = require("cloudinary").v2;
+
 const signOut = (req, res) => {
   res.cookie("jwt", "", { maxAge: 1 });
   res.redirect("/");
@@ -76,6 +78,23 @@ const logInFunction = async (req, res) => {
   }
 };
 
+const post_profileImage = (req, res, next) => {
+  cloudinary.uploader.upload(
+    req.file.path,
+    { folder: "X-System/profile-images" },
+    async (error, result) => {
+      if (result) {
+        var decoded = jwt.verify(req.cookies.jwt, process.env.SECRET_KEY_JWT);
+        const avatar = await AuthUser.updateOne(
+          { _id: decoded.id },
+          { profileImage: result.secure_url }
+        );
+        res.redirect("/home");
+      }
+    }
+  );
+};
+
 module.exports = {
   signOut,
   homePage,
@@ -83,4 +102,5 @@ module.exports = {
   signUpPage,
   signInFunction,
   logInFunction,
+  post_profileImage,
 };
